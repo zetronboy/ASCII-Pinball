@@ -23,4 +23,4 @@ class Bumper(PinballElement):
         '''called once per frame'''
         self.image = self.idle_image
 
-icons['*'] = (PlayfieldIcon('bumper', '|', Bumper))
+icons['*'] = (PlayfieldIcon('bumper', '*', Bumper))

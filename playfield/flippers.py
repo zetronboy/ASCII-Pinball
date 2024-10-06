@@ -29,7 +29,7 @@ class LeftFlipper(Flipper):
         else:
             self.image = self.idle_image
             self.collision_cost = (1.0, 0.0)
-icons['>'] = (PlayfieldIcon('lflipper', '|', LeftFlipper))
+icons['>'] = (PlayfieldIcon('lflipper', '>', LeftFlipper))
 
 class RightFlipper(Flipper):
     def __init__(self, name, game, x, y):
@@ -47,4 +47,4 @@ class RightFlipper(Flipper):
         else:
             self.image = self.idle_image
             self.collision_cost = (1.0,0.0)
-icons['<'] = (PlayfieldIcon('rflipper', '|', RightFlipper))
+icons['<'] = (PlayfieldIcon('rflipper', '<', RightFlipper))

@@ -43,4 +43,4 @@ class Plunger(PinballElement):
         self.game.state == states.INSHOE
         return super().collide(ballspeed)
 
-icons['^'] = (PlayfieldIcon('plunger', '|', Plunger))
+icons['^'] = (PlayfieldIcon('plunger', '^', Plunger))

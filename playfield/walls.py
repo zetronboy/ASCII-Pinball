@@ -37,7 +37,7 @@ class HoriWall(Wall):
         speedx_cost, speedy_cost = self.collision_cost
         new_speed = (speedx * angle_cost_to_x, speedy * -1 * speedy_cost) #if collision_cost is 0, ball stops
         return new_speed
-icons['-'] = (PlayfieldIcon('HoriWall', '|', HoriWall))
+icons['-'] = (PlayfieldIcon('HoriWall', '-', HoriWall))
 
 class BackWall(Wall):
     '''backslash wall'''
@@ -54,7 +54,7 @@ class BackWall(Wall):
         new_speed = (speedy * speedx_cost, speedx * speedy_cost)
         return new_speed
     
-icons['\\'] = (PlayfieldIcon('BackWall', '|', BackWall))
+icons['\\'] = (PlayfieldIcon('BackWall', '\\', BackWall))
 
 class ForwWall(Wall):
     '''forward slash wall'''
@@ -75,4 +75,4 @@ class ForwWall(Wall):
         new_speed = ((speedy + 1) * speedx_cost * inverted, (speedx-1) * speedy_cost)
         return new_speed
     
-icons['/'] = (PlayfieldIcon('ForwWall', '|', ForwWall))
+icons['/'] = (PlayfieldIcon('ForwWall', '/', ForwWall))
