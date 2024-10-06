@@ -1,0 +1,66 @@
+{
+    "default": {
+        "scoring": {
+            "VertWall": 10,
+            "HoriWall": 10,
+            "ForwWall": 10,
+            "BackWall": 10,
+            "Plunger": 0,
+            "Bumper": 200,
+            "LeftFlipper": 0,
+            "RightFlipper": 0,
+            "Ball": 0
+            },
+        "description": "initial statemachine"
+    },
+    "one": { 
+        "scoring": {
+            "VertWall": 0,
+            "HoriWall": 0,
+            "ForwWall": 0,
+            "BackWall": 0,
+            "Plunger": 0,
+            "Bumper": 200,
+            "LeftFlipper": 0,
+            "RightFlipper": 0,
+            "Ball": 0
+            },
+        "triggers": [
+            {            
+                "next": "two", 
+                "conditions": 
+                { 
+                    "type": "hitcount",
+                    "element": "Bumper", 
+                    "hits": 1  
+                }
+            }
+        ],
+        "description": "things are heating up"
+    },
+    "two": {
+        "scoring": {
+            "VertWall": 0,
+            "HoriWall": 0,
+            "ForwWall": 0,
+            "BackWall": 0,
+            "Plunger": 0,
+            "Bumper": 1000,
+            "LeftFlipper": 0,
+            "RightFlipper": 0,
+            "Ball": 0
+            },
+        "triggers": [
+            {            
+                "next": "one", 
+                "conditions": 
+                { 
+                    "type": "hitcount",
+                    "element": "Bumper", 
+                    "hits": 2
+                }
+            }
+        ],
+        "description": "CRAZY TOWN"
+    }
+} 
