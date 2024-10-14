@@ -14,7 +14,8 @@ class PinballGame:
     playfield_angle = 6.0 # deg
     playfield_friction = 0.5 # drag to deaccell the ball, 1.0=no drag, 0.1=lots of drag 1/10 speed
     bounce_cost = 0.1 #slow down when bouncing off an element like wall, flipper and bumper will add accell
-    
+    DEBUG = True # show the keyboard inputs and ball position
+
     #functions to change the state
 
     def launch_ball(self):
@@ -79,20 +80,28 @@ class PinballGame:
 
     def add_player(self, name='', balls=3, repr_dict=None):
         new_player = Player(self, name, balls)
+
+        #if they have a saved player state, we apply that dictionary
         if repr_dict:
             new_player.loads(repr_dict)
-            new_player.load_score_modes(self.playfield.playfield_logic.copy())
-            #make sure this is a copy of the playfield logic, 
-            # it controls how scoring is applied in each mode of play
+
+        #make sure this is a copy of the playfield logic, 
+        # it controls how scoring is applied in each mode of play
+        new_player.load_score_modes(self.playfield.playfield_logic.copy())
+        new_player.set_mode('default')
         self.players.append(new_player)
 
     def new_ball(self):
         '''set initial ball position above plunge'''
         assert self.current_player.ball < self.current_player.balls            
         for name, elem in self.playfield.elements.items():
-            if 'plunger' in elem.name:
+            if 'Plunger' in elem.name:
                 plungerx, plungery = elem.pos                
                 self.playfield.elements['ball1'] = Ball('ball1', self, plungerx, plungery - 1)
                 self.current_player.new_ball() #state machine controls scoring based on game state
                 self.state = states.INSHOE
                 break
+
+    def add_points_for_hitting(self, element_name) -> None:
+        '''add the points to the current player based on the score_machine of the current mode'''
+        self.current_player.add_points(element_name)

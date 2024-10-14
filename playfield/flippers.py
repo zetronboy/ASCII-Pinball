@@ -11,7 +11,20 @@ class Flipper(PinballElement):
     def isflipped(self):
         return self.image == self.flipped_image
     
+    def collide(self, ball) -> tuple:
+        speedx, speedy = super().collide(ball) #plays sound and adds points
+        speedx_cost, speedy_cost = self.collision_cost # set on flip 
+        # swap x and y movement
+        new_speed = (speedy * speedx_cost, speedx * speedy_cost)
 
+        # TODO:
+        #not happy with this yet, rather than using ball velocity to create change,
+        # should set absolute or add some fixed value to direct ball 
+        # flipper_power does not seem to be working as intended or in a natural way
+        #
+
+        return new_speed
+    
 class LeftFlipper(Flipper):
     def __init__(self, name, game, x, y):
         super().__init__(name, game, x,y)

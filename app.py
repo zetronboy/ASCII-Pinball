@@ -2,6 +2,8 @@
 '''Pinball console
 play pinball in terminal/shell
 Author: Joey Collard 2024'''
+#REF https://www.ipdb.org/glossary.php
+
 from time import sleep
 import pygame
 import keyboard
@@ -11,7 +13,7 @@ from display import Display
 from game import PinballGame, states
 #from playfield.loader import get_playfield_dimensions,load_playfield_elements
 
-FRAMERATE = 16 #FPS
+FRAMERATE = 24 #FPS
 pygame.init()
 #screen = pygame.display.set_mode((820, 1024))
 #clock = pygame.time.Clock()
@@ -48,14 +50,14 @@ def main():
 def get_playfield_choice():
     choices = []
     choice = None
+    for file in listdir('playfields'):
+        if file.endswith('.pf'):
+            choices.append(file.replace('.pf',''))
+    if len(choices) == 1:
+        return choices[0]
+    
     while True:        
-        for file in listdir('playfields'):
-            if file.endswith('.pf'):
-                choices.append(file.replace('.pf',''))
-
-        if len(choices) == 1:
-            return choices[0]
-        
+        print( chr(27) + "[2J") # HOME ANSI ESC CODE
         print('','Select a playfield from below')
         for index, choice in enumerate(choices):
             print(str(index +1) +') '+ choice)
@@ -79,19 +81,8 @@ def check_input(game):
     lshift_pressed = keyboard.is_pressed('left shift')
     rshift_pressed = keyboard.is_pressed('right shift')
 
-    apressed = keyboard.is_pressed('a') #angle
-    Apressed = keyboard.is_pressed('SHIFT+a')
-    fpressed = keyboard.is_pressed('f') #friction
-    Fpressed = keyboard.is_pressed('SHIFT+f')
-    
-    gpressed = keyboard.is_pressed('g') #graivty
-    Gpressed = keyboard.is_pressed('SHIFT+g')
-    spressed = keyboard.is_pressed('s') #scale
-    Spressed = keyboard.is_pressed('SHIFT+s')
+    qpressed = keyboard.is_pressed('q')
 
-    #
-    # TODO: space to tilt
-    #
     left_flippers = []
     for name, element in elements.items():
         if name.lower().startswith('lflipper'):            
@@ -99,48 +90,63 @@ def check_input(game):
         if name.lower().startswith('rflipper'):
             element.set(isright or rshift_pressed)
             
-    plunger = elements.get('plunger1')
-    if plunger:
-        plunger.pull(game, isdown)
+    plunger = elements.get('Plunger1') #only supports 1 plunger, ATM..
+    assert plunger is not None
+    plunger.pull(game, isdown)
 
+        
 
-    if Apressed: #check caps first
-        game.playfield_angle -= 1
-        if game.playfield_angle < 1:
-            game.playfield_angle = 1
-    elif apressed:
-        game.playfield_angle += 1
-        if game.playfield_angle > 45:
-            game.playfield_angle = 45
+    if game.DEBUG:
+        apressed = keyboard.is_pressed('a') #angle
+        Apressed = keyboard.is_pressed('SHIFT+a')
+        fpressed = keyboard.is_pressed('f') #friction
+        Fpressed = keyboard.is_pressed('SHIFT+f')
+        
+        gpressed = keyboard.is_pressed('g') #graivty
+        Gpressed = keyboard.is_pressed('SHIFT+g')
+        spressed = keyboard.is_pressed('s') #scale
+        Spressed = keyboard.is_pressed('SHIFT+s')
 
-    if Fpressed:
-        game.playfield_friction -= 0.1
-        if game.playfield_friction < 0.1:
-            game.playfield_friction = 0.1
-    elif fpressed:
-        game.playfield_friction += 0.1
-        if game.playfield_friction > 1.0:
-            game.playfield_friction = 1.0
-    
-    if Gpressed: #check caps first
-        game.gravity -= 1
-        if game.gravity < 1:
-            game.gravity = 1
-    elif gpressed:
-        game.gravity += 1
-        if game.gravity > 45:
-            game.gravity = 45
+        if Apressed: #check caps first
+            game.playfield_angle -= 1
+            if game.playfield_angle < 1:
+                game.playfield_angle = 1
+        elif apressed:
+            game.playfield_angle += 1
+            if game.playfield_angle > 45:
+                game.playfield_angle = 45
 
-    if Spressed: #magic number
-        game.scale -= 1
-        if game.scale < 1:
-            game.scale = 1
-    elif spressed:
-        game.scale += 1
-        if game.scale > 99:
-            game.scale = 99
+        if Fpressed:
+            game.playfield_friction -= 0.1
+            if game.playfield_friction < 0.1:
+                game.playfield_friction = 0.1
+        elif fpressed:
+            game.playfield_friction += 0.1
+            if game.playfield_friction > 1.0:
+                game.playfield_friction = 1.0
+        
+        if Gpressed: #check caps first
+            game.gravity -= 1
+            if game.gravity < 1:
+                game.gravity = 1
+        elif gpressed:
+            game.gravity += 1
+            if game.gravity > 45:
+                game.gravity = 45
 
-    #this would be used after we switch to pygame.
+        if Spressed: #magic number
+            game.scale -= 1
+            if game.scale < 1:
+                game.scale = 1
+        elif spressed:
+            game.scale += 1
+            if game.scale > 99:
+                game.scale = 99
+
+    if qpressed:
+        game.state = states.OVER
+
+    #this could be used after we switch to pygame.
     # keys = pygame.key.get_pressed()
     # if keys[pygame.K_a]: #left flipper
     #     print('left')

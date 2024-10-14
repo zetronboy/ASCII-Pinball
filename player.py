@@ -8,12 +8,12 @@ from gamestates import states, PlayerStates
 @dataclass
 class Player():
     name: str
-    hitcounts: list[int]
+    hitcounts: dict
     score: int=0
     multiplier: int=0
     ball: int=0
     balls: int=3    
-    current_mode: str="default" #changes scoring applied and moves score_state
+    score_mode_name: str="default" #changes scoring applied and moves score_state
     state: PlayerStates=PlayerStates.WAITING
 
     def __init__(self, game, name='', balls=3):
@@ -24,8 +24,7 @@ class Player():
 
         # set the scores for each control, default has just one state
         # replaced when load called, below is a placholder to understand structure
-        self.score_modes = {
-            "default": {
+        self.load_score_modes( { "default": {
                 "scoring": {
                     "VertWall": 0,
                     "HoriWall": 0,
@@ -39,10 +38,11 @@ class Player():
                     },
                 "triggers": [],
                 "description": "default scoring"
-            }
-        }
+                }
+            })
+        self.set_mode("default")
         # one dict for each player, can be serialized to save/load as json
-        self.hitcounts = [] # counts with each playfield element the player has hit
+        self.hitcounts = {} # counts with each playfield element the player has hit
         self.score = 0
         self.multiplier = 0
 
@@ -52,7 +52,7 @@ class Player():
         dmd = "{:s} Ball: {:d}/{:d} {:5d}".format(self.name, self.ball, self.balls,  self.score)
         padding = width - len(dmd) - len('  ') #width does not include sides of table||
         spacer = " " * padding
-        return '| '+ dmd + spacer +' |'
+        return '| '+ dmd + ' '+ self.score_mode.get('description') +' |'
     
     def loads(self, repr_dict):
         '''set all paramters based on a passed dict that was the result of repr() of our dataclass'''
@@ -61,7 +61,9 @@ class Player():
         self.multiplier = repr_dict.get('multiplier',0)
         self.ball = repr_dict.get('ball')
         self.balls = repr_dict.get('balls')
-        self.current_mode = repr_dict.get('mode','default')
+        
+        assert self.score_mode != None # the modes should have been loaded before calling
+        self.set_mode( repr_dict.get('mode','default') )
         self.hitcounts = repr_dict.get('hitcounts')
     
     # def __repr__(self) -> str:
@@ -82,10 +84,13 @@ class Player():
         assert ValueError("load_score_modes expected a dictionary")
 
     def set_mode(self, mode_name):
+        if not mode_name:
+            assert ValueError("set_mode expected mode, got None")
         if self.score_modes.get(mode_name):
-            self.current_mode = mode_name
+            self.score_mode_name = mode_name
+            self.score_mode = self.score_modes.get(mode_name)
             return
-        self.current_mode = 'default'
+        self.score_mode = 'default'
         raise ValueError("score machine set_mode could not find the passed mode "+ mode_name)
     
     def add_points(self, element_name):
@@ -105,45 +110,40 @@ class Player():
         # EXAMPLE TRIGGER
         # { 
         #         "next": "two", 
-        #         "conditions": 
-        #         { 
-        #             "type": "hitcount",
-        #             "element": "Bumper", 
-        #             "hits": 1  
-        #         }
+        #         "type": "hitcount",
+        #         "element": "Bumper", 
+        #         "hits": 1  
         #     }
-        state = str(self.mode)
-        machine = self.score_machine.get(state) 
+        machine = self.score_mode #returns dict
         triggers = machine.get('triggers') # each trigger looks like this "Bumper": { "hits": 1, "next": "two" }
         
         for trigger_dict in triggers: #check all the triggers    
             conditions_passing = True            
-            next = trigger_dict.get('next')
-            conditions = trigger_dict.get('conditions')
-            for condition in conditions:
-                type = condition.get('type') # hitcount
-                element = condition.get('element')                
-                if type == 'hitcount':
-                    hits = condition.get('hits', 0)
-                    if self.hitcounts.get(element, 0) < int(hits):
-                        conditions_passing = False
-                #other conditional tests would go here
+            next_mode = trigger_dict.get('next')
+            type = trigger_dict.get('type') # hitcount
+            element = trigger_dict.get('element')                
+            if type == 'hitcount':
+                hits = trigger_dict.get('hits', 0)
+                if self.hitcounts.get(element, 0) < int(hits):
+                    conditions_passing = False
+            #other conditional tests would go here
 
-            if conditions_passing:
-                self.mode = next
+            # if the mode trigger is satisfied, and identifies a next mode, switch to it
+            if conditions_passing and next_mode:
+                self.set_mode( next_mode )
 
 
     def get_points(self, element_name):
         '''returns points for the passed Pinball element based on the state.
         used by add_points()'''
-        state = str(self.mode)
-        machine = self.score_machine.get(state)
-        if not machine:
+    
+        if not  self.score_mode:
             print("failed to find a scoring system for the current machine state, using default")
-            machine = self.score_machine.get('default')
-        scoring = machine.get('scoring')
+            self.set_mode('default')
+
+        scoring =  self.score_mode.get('scoring')
         if scoring:
-            print("loaded scoring for state "+ machine.get('description', 'unknown'))
+            #print("loaded scoring for state "+  self.score_mode.get('description', 'unknown'))
             return int(scoring.get(element_name))
         print("error getting scoring")
         return 0

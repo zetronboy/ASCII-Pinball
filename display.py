@@ -1,8 +1,11 @@
 '''renders the playfield to the terminal'''
 from math import floor,ceil
 
+#todo: add color playfield
 #from colorama import init,just_fix_windows_console,Fore,Back,Style
+
 class Display:
+    
     rows = []
     def __init__(self,width,height, game):
         self.set_mode(width,height)
@@ -28,9 +31,10 @@ class Display:
         for _ in range(width+2):
             print("-",end='')
         
-        self.draw_debug()
+        if self.game.DEBUG:
+            self.draw_debug()
 
-    def draw_debug(self):  
+    def draw_debug(self):
         ball = self.game.playfield.elements.get('ball1')      
         ball_speed = (round(ball.speed[0],1), round(ball.speed[1],1))
         ball_pos = (round(ball.pos[0],1), round(ball.pos[1],1))
@@ -43,12 +47,7 @@ class Display:
 
     def draw_score(self, width):
         print(self.game.current_player)
-        # score = self.game.score
-        # ball = self.game.ball     
-        # dmd = "Ball: {:d} P1: {:5d}".format(ball, score)
-        # padding = width - len(dmd) - len('  ') #width does not include sides of table||
-        # spacer = " " * padding
-        # print('| '+ dmd + spacer +' |')
+
     def blit(self, position_tuple,value):
         col, row = position_tuple # (x,y)
         if col >=0 and col <= self.game.playfield.width and row >=0 and row <= self.game.playfield.height:

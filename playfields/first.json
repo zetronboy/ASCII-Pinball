@@ -1,6 +1,7 @@
 {
     "default": {
         "scoring": {
+            "PinballElement": 0,
             "VertWall": 10,
             "HoriWall": 10,
             "ForwWall": 10,
@@ -11,10 +12,19 @@
             "RightFlipper": 0,
             "Ball": 0
             },
-        "description": "initial statemachine"
+        "triggers": [
+            {            
+                "next": "one", 
+                "type": "hitcount",
+                "element": "Bumper", 
+                "hits": 1  
+            }
+        ],
+        "description": "Let's GO!"
     },
     "one": { 
         "scoring": {
+            "PinballElement": 0,
             "VertWall": 0,
             "HoriWall": 0,
             "ForwWall": 0,
@@ -28,18 +38,17 @@
         "triggers": [
             {            
                 "next": "two", 
-                "conditions": 
-                { 
-                    "type": "hitcount",
-                    "element": "Bumper", 
-                    "hits": 1  
-                }
+                "type": "hitcount",
+                "element": "Bumper", 
+                "hits": 2
+
             }
         ],
         "description": "things are heating up"
     },
     "two": {
         "scoring": {
+            "PinballElement": 0,
             "VertWall": 0,
             "HoriWall": 0,
             "ForwWall": 0,
@@ -53,12 +62,9 @@
         "triggers": [
             {            
                 "next": "one", 
-                "conditions": 
-                { 
-                    "type": "hitcount",
-                    "element": "Bumper", 
-                    "hits": 2
-                }
+                "type": "hitcount",
+                "element": "Bumper", 
+                "hits": 3                
             }
         ],
         "description": "CRAZY TOWN"

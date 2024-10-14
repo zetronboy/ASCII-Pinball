@@ -31,7 +31,7 @@ class Playfield:
             with open(filename, 'r') as file:
                 data = json.load(file)
             return data
-        print("JSON file "+ filename+ " does not exist")    
+        print("JSON file "+ filename+ " does not exist, using default score_mode")    
 
     def load_playfield_elements(self, name):
         '''build playfield by adding controls 
@@ -42,20 +42,20 @@ class Playfield:
         playfield_controls = {}
 
         # define playfield controls
-        ctrl_counts = {} # indexd by control icon, counts so we can name them individually
-        bumper = '*'
-        bumper_count = 0
-        left_flipper = '>'
-        left_flipper_count = 0
-        right_flipper = '<'
-        right_flipper_count = 0
-        plunger = '^'
-        vert_wall = '|'
-        hori_wall = '-'
-        forw_wall = '/'
-        back_wall = '\\'
-        walls = [vert_wall, hori_wall, forw_wall, back_wall]
-        wall_count = 0
+        ctrl_counts = {} # indexd by control icon, counts so we can name them individually like VertWall3
+        # bumper = '*'
+        # bumper_count = 0
+        # left_flipper = '>'
+        # left_flipper_count = 0
+        # right_flipper = '<'
+        # right_flipper_count = 0
+        # plunger = '^'
+        # vert_wall = '|'
+        # hori_wall = '-'
+        # forw_wall = '/'
+        # back_wall = '\\'
+        # walls = [vert_wall, hori_wall, forw_wall, back_wall]
+        # wall_count = 0
         ###########################
 
         with open(path.join(self.PLAYFIELDS_FOLDER, name +'.pf'), 'r') as pf:
@@ -69,11 +69,11 @@ class Playfield:
         design = [horizontal_wall] + design  #top  of table added 
 
         for row_idx, row in enumerate(design):
-            row = '|' + row.strip('\n') + '|' #add left and right wall
+            row = '|' + row.strip('\n') + '|' #add left and right wall, not part of .pf file
             for column_idx, pin_elem in enumerate(row):
                 if pin_elem in icons.keys(): 
                     ctrl_counts[pin_elem] = ctrl_counts.get(pin_elem, 0) + 1
-                    pinball_icon = icons.get(pin_elem)
+                    pinball_icon = icons.get(pin_elem) #PlayfieldIcon object with props name, symbol, callback; indexed by symbol
                     ctrl_name = pinball_icon.name + str(ctrl_counts[pin_elem])
                     playfield_controls[ctrl_name] = pinball_icon.callback(ctrl_name, self.game, column_idx, row_idx)
                 elif pin_elem != ' ':

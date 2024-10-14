@@ -9,7 +9,7 @@ class Ball(PinballElement):
         self.image = 'O'
     
     def update(self, tick):
-        '''
+        '''move the ball based on forces and previous velocity
         * tick: fraction of a second like 0.25 to render 1/4 sec of updates'''
         if self.game.state != states.INPLAY:
             return
@@ -19,8 +19,6 @@ class Ball(PinballElement):
         #lower the playfield angle, the slower the ball will accell to the bottom
         #  when angle is 90, accell is just gravity. lower angles reduce this linear (should be exponent i think)
         linear = (self.game.playfield_angle / 90.0)
-        #sqroot = sqrt(game.playfield_angle / 90.0) # emulates a curve I like but small difference from linar
-        #exponent = (game.playfield_angle / 90.0) ** 2
         accell_y = linear * self.game.gravity * self.game.scale #pos accell is down
         speed_y = speed_y + accell_y
 
@@ -46,6 +44,7 @@ class Ball(PinballElement):
     def move(self, dest_x, dest_y):
         '''move and check collision
         coordinate system has 0 at top left corner
+        if the ball is to move>1 space, move it one space at a time and check for collision like casting a ray
         '''
         if dest_y > 20:
             print('break')
@@ -79,9 +78,10 @@ class Ball(PinballElement):
 
             colliding = self.get_colliding_elements((current_x, current_y))
             if colliding:                    
-                self.speed = colliding[0].collide(self.speed) # bound off element 
+                self.speed = colliding[0].collide(self) # bound off element, 
+                # each element adds their own points, makes a sound, and adjusts ball speed on collide()
                 self.push_ball_off_colliding_elements(colliding)
-                #self.pos = (self.pos[0] + self.speed[0], self.pos[1] + self.speed[1])
+                
                 return   
 
             self.pos = (current_x, current_y)
@@ -117,14 +117,9 @@ class Ball(PinballElement):
         if position is None: #if they don't pass a test position, check the current position
             position = self.pos 
         for name, element in self.game.playfield.elements.items():
-            # ballx, bally = self.pos
-            # speedx, speedy = self.speed
-            # elmx, elmy = element.pos
-            # using floor to check if they are on the same block by ignoring floating point
             if element != self:
                 if element.is_colliding(position) :
-                    colliding = True
-                    
+                    colliding = True                    
         return colliding
 
     def get_colliding_elements(self, position=None) -> PinballElement:
