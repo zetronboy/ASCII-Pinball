@@ -71,6 +71,8 @@ This is supported through triggers. I Would like to build this further and make 
 ## Physics - Collision
 When the ball hits a wall its velocity (delta-x, delta-y) is adjusted by a modifier. The collide() method will try to simiate bouncing off the surface.
 
+popup bumbers redirect back the direction the ball is traveling
+
 ## debugger
 Tou can use the keyboard to adjust game parameters angle of the playfield.
 
@@ -86,10 +88,10 @@ ___Scale___ was removed from the game because it was a crutch early in developme
 There is support to serialize the Players into JSON and save /load from disk, like a suspend feature. using Player.loads() to import state and repr(Player) to dump state as JSON. #UNTESTED
 
 ## colorized playfield
-I would like the elements to show in differnet colors. #ENHANCEMENT
+display.py has settings for coloring using colorama
 
 ## nudge
-Nudge / bump controls have not been added. With the low framerate I don't think its practical. #ENHANCEMENT
+simple nudge using space bar was added to simulate. nudge direction other than up would be nice.
 
 ## PyGame
 Could do a pinball game using Pygame, but need to build some fundamentals without that complexity. Might fork this one day but I would hope to keep the stylistic choice of ASCII based elements in that UI as well. #ENHANCEMENT
@@ -99,3 +101,26 @@ Could do a pinball game using Pygame, but need to build some fundamentals withou
 Collisions can go through walls. The bounce velocity is used to jump the ball one collumn or row in the largest direcection x or y. The test for this is not robust enough.
 
 
+# Controls
+## left flipper
+left shift or up arrow will activate
+
+## right flipper
+right shift or up arrow will activate
+
+## plunger
+control or down arrow will pull back, hold for 5 sec to pull completely back
+
+## nudge
+pressing space will nudge directly up ATM
+
+## quit
+q will quit
+when a game is done you will have a change to quit
+
+## debug
+enabled in game.py and shown at the bottom of the playfield
+* a will change playfield angle, making the ball accellerate down
+* f will change the playfield friction, slowing down ball movement
+* g will change gravity, like a combination of a and f above
+* s changes the sale of set values, making the game crazy time

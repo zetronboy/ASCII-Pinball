@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-'''Pinball console
+'''Pin  console
 play pinball in terminal/shell
 Author: Joey Collard 2024'''
 #REF https://www.ipdb.org/glossary.php
@@ -46,6 +46,9 @@ def main():
             sleep(1 / FRAMERATE)
     print("GAME OVER")
     game.save('savegame')
+    answer = input("Play again (y/n)?")
+    if answer.lower().startswith('y'):
+        main()
 
 def get_playfield_choice():
     choices = []
@@ -75,28 +78,41 @@ def check_input(game):
     elements = game.playfield.elements
     # Wait for the next event. does not require pygame
     # https://github.com/boppreh/keyboard#api
-    isleft = keyboard.is_pressed('left')
-    isright = keyboard.is_pressed('right')
-    isdown = keyboard.is_pressed('down')
+    left_pressed = keyboard.is_pressed('left')
+    right_pressed = keyboard.is_pressed('right')
+    ctrl_pressed = keyboard.is_pressed('control')
+    down_pressed = keyboard.is_pressed('down') # plunger
+    space_pressed = keyboard.is_pressed('space') # nudge
+    up_pressed = keyboard.is_pressed('up') # both flippers
     lshift_pressed = keyboard.is_pressed('left shift')
     rshift_pressed = keyboard.is_pressed('right shift')
 
-    qpressed = keyboard.is_pressed('q')
+    qpressed = keyboard.is_pressed('q') # quit
 
     left_flippers = []
     for name, element in elements.items():
         if name.lower().startswith('lflipper'):            
-            element.set(isleft or lshift_pressed)
+            element.set(left_pressed or lshift_pressed or up_pressed)
         if name.lower().startswith('rflipper'):
-            element.set(isright or rshift_pressed)
+            element.set(right_pressed or rshift_pressed or up_pressed)
             
     plunger = elements.get('Plunger1') #only supports 1 plunger, ATM..
     assert plunger is not None
-    plunger.pull(game, isdown)
-
+    plunger.pull(game, down_pressed or ctrl_pressed)
         
+    if space_pressed:
+        game.nudge()
+
+    if qpressed:
+        game.state = states.OVER
 
     if game.DEBUG:
+        # accept keyboard inputs to change physics
+        # a will change playfield angle, making the ball accellerate down
+        # f will change the playfield friction, slowing down ball movement
+        # g will change gravity, like a combination of a and f above
+        # s changes the sale of set values, making the game crazy time
+
         apressed = keyboard.is_pressed('a') #angle
         Apressed = keyboard.is_pressed('SHIFT+a')
         fpressed = keyboard.is_pressed('f') #friction
@@ -143,8 +159,7 @@ def check_input(game):
             if game.scale > 99:
                 game.scale = 99
 
-    if qpressed:
-        game.state = states.OVER
+
 
     #this could be used after we switch to pygame.
     # keys = pygame.key.get_pressed()

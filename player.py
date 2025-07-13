@@ -52,7 +52,7 @@ class Player():
         dmd = "{:s} Ball: {:d}/{:d} {:5d}".format(self.name, self.ball, self.balls,  self.score)
         padding = width - len(dmd) - len('  ') #width does not include sides of table||
         spacer = " " * padding
-        return '| '+ dmd + ' '+ self.score_mode.get('description') +' |'
+        return dmd + ' '+ self.score_mode.get('description')
     
     def loads(self, repr_dict):
         '''set all paramters based on a passed dict that was the result of repr() of our dataclass'''

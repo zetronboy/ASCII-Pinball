@@ -1,6 +1,6 @@
 
 import json
-
+from math import floor,ceil 
 from playfield.ball import Ball
 from playfield.playfield import Playfield
 from player import Player
@@ -35,18 +35,20 @@ class PinballGame:
         self.current_player = None
         
     def __repr__(self):
-        return { 
+        return json.dumps({ 
             'playfield': str(self.playfield), 
             'players': repr(self.players)
-            }
+            })
     
     def load(self, filename):
         '''pass dict you got file savefile, created by save()'''
         initial_game_state = json.load(filename)
-        if initial_game_state.get('playfield') != self.playfield.name:
-            assert ValueError("attempting to load save data for a different playfield")
-        for player in initial_game_state.get('players'):
-            self.add_player(repr_dict=player)
+        if initial_game_state:
+            if initial_game_state.get('playfield') != self.playfield.name:
+                assert ValueError("attempting to load save data for a different playfield")            
+            for player in initial_game_state.get('players'):
+                self.add_player(repr_dict=player)
+                
 
     def save(self, filename):
         save_content = repr(self)
@@ -67,7 +69,7 @@ class PinballGame:
             self.current_player = self.players[int(name_or_number)-1]
         else:
             self.current_player = self.players.get(name_or_number)
-
+        
     def advance_player(self):
         '''move to the next player'''
         for index, player in enumerate(self.players):
@@ -88,7 +90,7 @@ class PinballGame:
         #make sure this is a copy of the playfield logic, 
         # it controls how scoring is applied in each mode of play
         new_player.load_score_modes(self.playfield.playfield_logic.copy())
-        new_player.set_mode('default')
+        new_player.set_mode('default')        
         self.players.append(new_player)
 
     def new_ball(self):
@@ -105,3 +107,19 @@ class PinballGame:
     def add_points_for_hitting(self, element_name) -> None:
         '''add the points to the current player based on the score_machine of the current mode'''
         self.current_player.add_points(element_name)
+
+    def nudge(self, direction = 'up', power = 1):
+        '''move the ball opposite to direction and check ball physics after nudging the playfield into the ball'''
+        ball = self.playfield.elements.get('ball1')      
+        #todo nudgle all balls when playing multiball, but multi-ball mode not implemented
+        if direction == 'up':
+            ball_boost_y = ball.speed[1] + power # bounce will be relative to down speed of the ball
+            ball_new_pos = (ceil(ball.pos[0]), ceil(ball.pos[1]))
+            ball.pos = ball_new_pos
+            ball.speed = (ball.speed[0], ball_boost_y)
+        else:
+            raise NotImplementedError("nudge() direction, only up supported")
+    
+        
+
+ 
